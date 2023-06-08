@@ -1,0 +1,98 @@
+<!--show all Bestellungen from User and give option to bestellen-->
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+
+<title>Bestellungen</title> 
+</head>
+<body>
+    
+  <nav class="navbar navbar-expand-lg navbar-light bg-light">
+    <a class="navbar-brand" href="#">Pizza4Me</a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarNav">
+      <ul class="navbar-nav">
+      <li class="nav-item">
+          <a class="nav-link" href="http://localhost:8080/login">Login</a>
+        </li>
+        <li class="nav-item ">
+          <a class="nav-link" href="http://localhost:8080/pizzen">Pizza<span class="sr-only">(current)</span></a>
+        </li>
+        <li class="nav-item active">
+          <a class="nav-link" href="http://localhost:8080/bestellungen">Bestellungen</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="http://localhost:8080/kunden">Kunden</a>
+        </li>
+  
+  
+      </ul>
+    </div>
+  </nav>
+
+
+    <h1 style="margin-left: 30px;">Bestellungen</h1>
+
+    <div class="container">
+      <table class="table">
+          <thead>
+          <tr>
+              <th>Pizza</th>
+              <th>Menge</th>
+              <th>Preis</th>
+          </tr>
+          </thead>
+          <tbody>
+            {#for bestellung in bestellungen}
+            <tr>
+                <td>{bestellung.getPizza().getName()}</td>
+                <td>{bestellung.getAmount()}</td>
+                <td>{bestellung.getPreis()}</td>
+                <td><Button type="submit" onclick="manage({bestellung.getPizza().getId()},{bestellung.getAmount()})">Loeschen</Button></td>
+            </tr>
+            {/for}
+          </tbody>
+      </table>
+      <button type="button" onclick=order()>Bestellen</button> 
+    </div>
+</body>
+
+<script>
+
+  async function manage(pizzaid,amount) {  
+     let config = {
+       body: JSON.stringify ({ 
+         pizzaid: pizzaid,
+         amount: amount
+       }),
+       headers: {
+         'Content-Type': 'application/json'
+     },
+     method:'DELETE'
+     }
+  let attempt = await fetch('bestellungen/delete',config);
+  location.reload(); 
+  return attempt.status === 200;
+
+   }
+
+   async function order() {
+    let config = {
+     method:'DELETE'
+     }
+    alert('Bestellung abgeschickt');
+    let attempt = await fetch('bestellungen/order',config);
+    location.reload(); 
+    return attempt.status === 200;
+   }
+
+ </script>
+
+
+
+
+</html>
