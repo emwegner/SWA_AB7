@@ -1,5 +1,7 @@
 package org.acme.Security;
 
+import java.util.List;
+
 import io.quarkus.elytron.security.common.BcryptUtil;
 import io.quarkus.hibernate.orm.panache.PanacheEntity;
 import jakarta.persistence.Entity;
@@ -40,6 +42,12 @@ public class User extends PanacheEntity
         user.role = role;
         user.kundenid = null;
         user.persist();
+    }
+
+    public static User findByName(String name) {
+        List<User> users = listAll();
+        for(User user:users) if(user.username.equals(name)) return user;
+        return null;
     }
     
 }

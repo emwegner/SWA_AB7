@@ -1,12 +1,11 @@
 package org.acme.boundary.rest;
 
-import java.util.List;
 
 import org.acme.Security.User;
 import org.acme.boundary.rest.DTOs.BestellpunktDTO;
 import org.acme.control.BestellpunktService;
 import org.acme.control.BestellungService;
-import org.acme.entity.Bestellungspunkt;
+
 import org.acme.entity.Kunde;
 import org.acme.entity.Pizza;
 
@@ -51,40 +50,54 @@ public class BestellungResource {
     @GET
     @RolesAllowed({"admin", "user"})
     @Produces(MediaType.TEXT_PLAIN)
-    public TemplateInstance getBestellungen() {
-        return bestellungTemplate.data("bestellungen",bestellpunktService.BestellungspunkteAbfragen());      
+    public TemplateInstance getBestellungen(@Context SecurityContext securityContext) {
+         User user = User.findByName(securityContext.getUserPrincipal().getName());
+         if(user.role.equals("user")) {
+           Kunde kunde = Kunde.findById(user.kundenid);
+           return bestellungTemplate.data("bestellungen",bestellpunktService.BestellungspunkteAbfragen(kunde)); 
+         }
+          if(user.role.equals("admin")) {
+          return bestellungTemplate.data("bestellungen",bestellpunktService.BestellungspunkteAbfragen()); 
+         }
+       return errorTemplate.data("Error occured");
+
     }
-
     
     
 
-    @POST
+   @POST
     @Transactional
     @Path("/add")
-    //nur user, aber zum testen beide
     @RolesAllowed({"admin", "user"})
-    public Response addBestellpunkt(BestellpunktDTO dto) {
+    public Response addBestellpunkt(BestellpunktDTO dto, @Context SecurityContext securityContext) {
+      User user = User.findByName(securityContext.getUserPrincipal().getName());
+      Kunde kunde = Kunde.findById(user.kundenid);
+      
+
 
       if(dto != null) {
         Pizza pizza = Pizza.findById(dto.getPizzaid());
-        bestellpunktService.BestellungspunktHinzufuegen(pizza,dto.getAmount());
+        bestellpunktService.BestellungspunktHinzufuegen(kunde,pizza,dto.getAmount());
         return Response.ok("Bestellung hinzugefuegt!").build();    
         } 
         return Response.notModified("not Valid: addBestellpunkt").build();
+
     }
 
     @DELETE
     @Transactional
     @Path("/delete")
     @RolesAllowed({"admin", "user"})
-    public Response deleteBestellpunkt(BestellpunktDTO dto) {
-      if(dto != null) {
+    public Response deleteBestellpunkt(BestellpunktDTO dto,@Context SecurityContext securityContext) {
+       User user = User.findByName(securityContext.getUserPrincipal().getName());
+       Kunde kunde = Kunde.findById(user.kundenid);
+             if(dto != null) {
         Pizza pizza = Pizza.findById(dto.getPizzaid());
-        bestellpunktService.BestellungspunktLoeschen(pizza,dto.getAmount());
+        bestellpunktService.BestellungspunktLoeschen(kunde,pizza,dto.getAmount());
         return Response.ok("Bestellung geloescht!").build();    
         } 
 
-        return Response.notModified("not Valid: addBestellpunkt").build();
+        return Response.notModified("not Valid: deleteBestellpunkt").build();
     
     }
 
@@ -92,12 +105,13 @@ public class BestellungResource {
     @Transactional
     @Path("/order")
     @RolesAllowed({"admin", "user"})
-    public Response bestellen() {
-        bestellpunktService.Bestellen();
+    public Response bestellen(@Context SecurityContext securityContext) {
+        User user = User.findByName(securityContext.getUserPrincipal().getName());
+        Kunde kunde = Kunde.findById(user.kundenid);
+
+        bestellpunktService.Bestellen(kunde);
         return Response.ok("Bestellung abgeschickt!").build();    
     }
-
-
 
 
     

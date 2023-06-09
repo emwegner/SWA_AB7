@@ -50,13 +50,20 @@ public class Kunde extends PanacheEntityBase{
         adresse = new Adresse();
     }
 
-    public void addNewBestellpunkt(int pizzaid, int amount){
+    public void addNewBestellpunkt(Pizza pizza, int amount){    
         Bestellung bestellung = new Bestellung();
-        bestellung.addPizza(Pizza.findById(pizzaid),amount);
+        bestellung.addPizza(pizza, amount);
+        bestellung.persist();
         bestellungen.add(bestellung);
+        
     }
 
     
+    public void order() {
+        this.bestellungen.clear();
+    }
+
+ 
     @Id
     @SequenceGenerator(name = "kundeSeq", sequenceName = "kunde_id_seq", allocationSize = 1, initialValue = 1)
     @GeneratedValue(generator = "kundeSeq")

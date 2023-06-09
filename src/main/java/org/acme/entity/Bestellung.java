@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import io.quarkus.hibernate.orm.panache.PanacheEntityBase;
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
@@ -15,7 +16,7 @@ import jakarta.persistence.SequenceGenerator;
 @Entity
 public class Bestellung extends PanacheEntityBase {
 
-   @OneToMany
+   @OneToMany(cascade = CascadeType.ALL, mappedBy = "bestellung", orphanRemoval = true)
    private List<Bestellungspunkt> pizzen = new ArrayList<Bestellungspunkt>();
    @Id
    private Long id;
@@ -61,7 +62,9 @@ public class Bestellung extends PanacheEntityBase {
 
    public void addPizza(Pizza pizza, int amount) {
       Bestellungspunkt punkt = new Bestellungspunkt(pizza, amount);
+      punkt.persist();
       pizzen.add(punkt);
+   
    }
 
 
