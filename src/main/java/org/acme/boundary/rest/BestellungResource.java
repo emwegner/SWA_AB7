@@ -71,9 +71,8 @@ public class BestellungResource {
     @RolesAllowed({"admin", "user"})
     public Response addBestellpunkt(BestellpunktDTO dto, @Context SecurityContext securityContext) {
       User user = User.findByName(securityContext.getUserPrincipal().getName());
+      if(user.role.equals("admin"))  return Response.notModified("not Valid: Admin kein Kunde").build();
       Kunde kunde = Kunde.findById(user.kundenid);
-      
-
 
       if(dto != null) {
         Pizza pizza = Pizza.findById(dto.getPizzaid());
